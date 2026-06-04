@@ -52,7 +52,6 @@ from datetime import datetime
 #       - list
 #       - unknown command
 
-
 if len(sys.argv) < 2:       
     print("Please provide a command")
 else:
@@ -66,7 +65,8 @@ else:
     #           - os.path.exists(filename) : check file's existence
     #           - with open(filename, "r") as f : "r" here is for reading the file
     #           - json.load(f) : converts from JSON to python list
-    #       iii. create a task dicitionary (for task you're about to add)
+    #       iii. create a task dicitionary (for tasks you're about to add)
+    #           - max(task["id"] for task in tasks) + 1 if tasks else 1 : 
     #           - datetime.now().strftime("%Y-%m-%d %H:%M:%S") : for live date and time
     #       iv. append & write back
     #           - json.dump(tasks, f) : converts python list tasks to JSON format & writes it into the file f
@@ -85,7 +85,7 @@ else:
                 tasks = []
 
             task = {
-                "id": len(tasks) + 1,
+                "id": max(task["id"] for task in tasks) + 1 if tasks else 1,
                 "description": argument,
                 "status": "todo",
                 "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
@@ -181,30 +181,94 @@ else:
                     print("No tasks found")
 
     elif command == "mark-in-progress":
-        print("mark-in-progress command recieved")
+    # * III. TASK_ID
+    #       i. EDGE CASE
+    #       ii. define file name & load existing tasks
+    #       iii. update status and time
+    #           - status : in-progress
+    #       iv. write back
+    #       v. print confirmation
+
+        if len(sys.argv) < 3:
+            print("Please provide TASK_ID")
+        else:
+            task_id = int(sys.argv[2])
+
+            filename = "tasks.json"
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    tasks = json.load(f)
+
+                for task in tasks:
+                    if task["id"] == task_id:
+                        task["status"] = "in-progress"
+                        task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                with open(filename, "w") as f:
+                    json.dump(tasks, f)
+
+                print("Tasks status changed to mark-in-progress successfully (ID : " + str(task_id) + ")")
+
+            else:
+                print("No tasks found")
     
     elif command == "mark-done":
-        print("mark-done command recieved")
+    # * III. TASK_ID
+    #       i. EDGE CASE
+    #       ii. define file name & load existing tasks
+    #       iii. update status and time
+    #           - status : done
+    #       iv. write back
+    #       v. print confirmation
+
+        if len(sys.argv) < 3:
+            print("Please provide a TASK_ID")
+        else:
+            task_id = int(sys.argv[2])
+
+            filename = "tasks.json"
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    tasks = json.load(f)
+                
+                for task in tasks:
+                    if task["id"] == task_id:
+                        task["status"] = "done"
+                        task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                with open(filename, "w") as f:
+                    json.dump(tasks, f)
+
+                print("Tasks status changed to done successfully (ID : " + str(task_id) + ")")
+
+            else:
+                print("No tasks found")
     
     elif command == "list":
-    # * III. LIST ALL TASKS
-    #       i. define file name and load existing tasks
-    #           - filename = "tasks.json" : give a name to the file
-    #           - os.path.exists(filename) : check file's existence
-    #           - with open(filename, "r") as f : "r" here is for reading the file
-    #           - json.load(f) : converts from JSON to python list
-    #       ii. print tasks
+    # * III. FILTER ARGUMENT
+    #       i. define file name & load existing tasks
+    #       ii. Check loaded tasks
+    #       iii. filter tasks
+    #       iv. print
 
         filename = "tasks.json"
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 tasks = json.load(f)
 
-            if len(tasks) == 0:
-                print("No tasks found")
-            else:
-                for task in tasks:
-                    print(task)
+                if len(tasks) == 0:
+                    print("No tasks found")
+                else:
+                    
+                    if len(sys.argv) < 3:
+                        tasks_to_print = tasks
+                    else:
+                        filter_status = sys.argv[2]
+                        tasks_to_print = [task for task in tasks if task["status"] == filter_status]
+                    
+                    for task in tasks_to_print:
+                        print(task)
+
         else:
             print("No file found")
     
