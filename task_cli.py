@@ -252,7 +252,8 @@ else:
     # * III. FILTER ARGUMENT
     #       i. define file name & load EXISTING tasks
     #       ii. Check loaded tasks
-    #       iii. filter tasks
+    #       iii. OPTIONAL FILTER
+    #           - [task for task in tasks if task["status"] == filter_status] : filters tasks by status using list comprehension
     #       iv. print confirmation
 
         filename = "tasks.json"
