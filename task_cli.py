@@ -99,7 +99,41 @@ else:
             print("Tasks added successfully (ID : " + str(task["id"]) + ")")
     
     elif command == "delete":
-        print("delete command recieved")
+    # * III. TASK_ID
+    #       i. EDGE CASE: For a TASK_ID to exist, you need atleast 3 elements
+    #           - int(sys.argv[2]) : sys.argv[2] is a string, but TASK_ID is integer
+    # * IV. DESCRIPTION
+    #       i. EDGE CASE: For a DESCRIPTION to exist, you need atleast 4 elements
+    #       ii. define file name & load existing tasks
+    #           - filename = "tasks.json" : give a name to the file
+    #           - os.path.exists(filename) : check file's existence
+    #           - with open(filename, "r") as f : "r" here is for reading the file
+    #           - json.load(f) : converts from JSON to python list  
+    #       iii. delete task
+    #           - tasks = [task for task in tasks if task["id"] != task_id] : also known as LIST COMPREHENSION
+    #                       (it rebuilds the list keeping only tasks whose id does not match)
+    #       iv. write back
+    #       v. print confirmation
+
+        if len(sys.argv) < 3:
+            print("Please enter the TASK_ID")
+        else:
+            task_id = int(sys.argv[2])
+
+            filename = "tasks.json"
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    tasks = json.load(f)
+
+                tasks = [task for task in tasks if task["id"] != task_id]
+
+                with open(filename, "w") as f:
+                    json.dump(tasks, f)
+                    
+                print("Task(s) deleted successfully (ID : " + str(task_id) + ")")
+
+            else:
+                print("File doesnot exist")
     
     elif command == "update":
     # * III. TASK_ID
@@ -108,7 +142,7 @@ else:
     # NOTE : loading the file before checking description doesn't break anything. But validating inputs before doing file I/O is better.
     # * IV. DESCRIPTION
     #       i. EDGE CASE: For a DESCRIPTION to exist, you need atleast 4 elements
-    #       ii. define file name and load exisiting tasks
+    #       ii. define file name & load exisiting tasks
     #           - filename = "tasks.json" : give a name to the file
     #           - os.path.exists(filename) : check file's existence
     #           - with open(filename, "r") as f : "r" here is for reading the file
