@@ -2,12 +2,46 @@
 task_cli.py - Command-line interface for the Task Tracker application.
 Usage: python task_cli.py <command> [description]
 """
+#-------------------------------------------------------------------------------------------------------------------------------------
+# NOTE: CLI
+#
+#       USER INPUT: 
+#       python3 FILE_NAME COMMAND DESCRIPTION (eg: python3 task_cli.py add "Buy groceries")
+#       python receives this user input as a LIST: ['task_cli.py', 'add', 'Buy groceries']
+#       this LIST is accessible via sys.argv :
+#       - sys.argv = is the full list
+#       - sys.argv[0] = To read the FILE_NAME
+#       - sys.argv[1] = To read the COMMAND
+#       - sys.argv[2] = To read the DESCRIPTION/ TASK_ID
+#       - sys.argv[3] = To read the DESCRIPTION
 
-# *
-# sys - To read user input as python receives user input as a list
-# json - reads and writes json files
-# os - checks if the file exists
-# datetime - for real timestamps 
+
+# NOTE: FILE-SYSTEM 
+#
+#       JSON:
+#       Universal format for storing and exchanging structured data as text
+#       Every programming language can read and write it
+#       Relevance here: PERSISTENCE
+#
+#       PERSISTENCE: 
+#       the ability of data to outlive the specific process or application that created it
+#       options for PERSISTENCE: 
+#       - A database(MySQL, PostgreSQL): Overkill for a local CLI tool
+#       - A plain text file: No structure, hard to read back
+#       - JSON file: structured, simple, no setup required
+#-------------------------------------------------------------------------------------------------------------------------------------
+
+
+# * IMPORT MODULES
+#
+# CLI 
+#   import sys : To read user input
+#
+# FILE-SYSTEM
+#   import os : checks if the file exists
+#   import json : reads and writes json files
+#
+#   from datetime import datetime : for real timestamps 
 
 import sys
 import json
@@ -15,42 +49,20 @@ import os
 from datetime import datetime
 
 
-# NOTE: USER INPUT:
-#       user input: python FILE_NAME COMMAND DESCRIPTION (eg: python3 task_cli.py add "Buy groceries")
-#       python recieves this user input as a list: ['task_cli.py', 'add', 'Buy groceries']
-#       this list is accessible via sys.argv :
-#       - sys.argv = is the full list
-#       - sys.argv[0] = To read the FILE_NAME
-#       - sys.argv[1] = To read the COMMAND
-#       - sys.argv[2] = To read the DESCRIPTION/ TASK_ID (in update)
-#       - sys.argv[3] = To read the DESCRIPTION (in update)
-
-# NOTE: JSON: 
-#       - Universal format for storing and exchanging structured data as text
-#       - Every programming language can read and write it
-#       - Relevance here: PERSISTENCE
-#   PERSISTENCE: 
-#       the ability of data to outlive the specific process or application that created it
-#       options for PERSISTENCE: 
-#       - A database(MySQL, PostgreSQL): Overkill for a local CLI tool
-#       - A plain text file: No structure, hard to read back
-#       - JSON file: structured, simple, no setup required
-
-
 # * I. FILE_NAME: 
-#       Already typed in the USER INPUT in CLI. eg: python3 "task_cli.py" ....
-#       Hence sys.argv[0] as input is not required
+#       Already in USER INPUT in CLI. eg: python3 "task_cli.py" ....
+#       Hence sys.argv[0] as input not required
 
 
 # * II. COMMANDS: 
-#       - EDGE CASE: For a COMMAND to exist, you need atleast 2 elements
-#       - add
-#       - delete
-#       - update
-#       - mark-in-progress
-#       - mark-done
-#       - list
-#       - unknown command
+#       i. EDGE CASE: For a COMMAND to exist, you need atleast 2 elements
+#       ii. add
+#       iii. delete
+#       iv. update
+#       v. mark-in-progress
+#       vi. mark-done
+#       vii. list
+#       viii. unknown command
 
 if len(sys.argv) < 2:       
     print("Please provide a command")
@@ -60,17 +72,20 @@ else:
     if command == "add":
     # * III. DESCRIPTION:
     #       i. EDGE CASE: For a DESCRIPTION to exist, you need atleast 3 elements
-    #       ii. define file name and load existing tasks
-    #           - filename = "tasks.json" : give a name to the file
-    #           - os.path.exists(filename) : check file's existence
-    #           - with open(filename, "r") as f : "r" here is for reading the file
-    #           - json.load(f) : converts from JSON to python list
+    #       ii. define file name and load EXISTING tasks
+    #           - filename = "tasks.json" :                                     stores the filename in a variable for reuse
+    #           - if os.path.exists(filename) :                                 checks file's existence
+    #           - with open(filename, "r") as f :                               "r" here is for reading the file
+    #           - tasks = json.load(f) :                                        converts from JSON to python list & stores in tasks
+    #           - else: tasks = [] :                                            if file doesnot exist, empty list (tasks) is created
     #       iii. create a task dicitionary (for tasks you're about to add)
-    #           - max(task["id"] for task in tasks) + 1 if tasks else 1 : 
-    #           - datetime.now().strftime("%Y-%m-%d %H:%M:%S") : for live date and time
-    #       iv. append & write back
-    #           - json.dump(tasks, f) : converts python list tasks to JSON format & writes it into the file f
+    #           - task = {...} :                                                argument = sys.argv[2] gets used here to make new task
+    #           - max(task["id"] for task in tasks) + 1 if tasks else 1 :       take the max id in the list and add 1 BUT if list is empty, use 1 
+    #           - datetime.now().strftime("%Y-%m-%d %H:%M:%S") :                for live date and time
+    #       iv. append NEW tasks & write back in file
+    #           - json.dump(tasks, f) :                                         converts tasks (python list) to JSON format & writes it into the file f
     #       v. print confirmation
+    #           - str(task["id"]) :                                             task["id"] is an int & we can't concatenate str & int in python directly
 
         if len(sys.argv) < 3:
             print("Please provide a task description")
@@ -101,18 +116,12 @@ else:
     elif command == "delete":
     # * III. TASK_ID
     #       i. EDGE CASE: For a TASK_ID to exist, you need atleast 3 elements
-    #           - int(sys.argv[2]) : sys.argv[2] is a string, but TASK_ID is integer
-    # * IV. DESCRIPTION
-    #       i. EDGE CASE: For a DESCRIPTION to exist, you need atleast 4 elements
-    #       ii. define file name & load existing tasks
-    #           - filename = "tasks.json" : give a name to the file
-    #           - os.path.exists(filename) : check file's existence
-    #           - with open(filename, "r") as f : "r" here is for reading the file
-    #           - json.load(f) : converts from JSON to python list  
+    #           - int(sys.argv[2]) :                                            sys.argv[2] is a str, but TASK_ID is an int
+    #       ii. define file name & load EXISTING tasks
+    #           - else: print("File doesnot exist") :                           file doesnot exist/ no tasks exist
     #       iii. delete task
-    #           - tasks = [task for task in tasks if task["id"] != task_id] : also known as LIST COMPREHENSION
-    #                       (it rebuilds the list keeping only tasks whose id does not match)
-    #       iv. write back
+    #           - tasks = [task for task in tasks if task["id"] != task_id] :   (LIST COMPREHENSION) Rebuilds the list keeping only tasks whose id does not match
+    #       iv. write back in file
     #       v. print confirmation
 
         if len(sys.argv) < 3:
@@ -137,20 +146,15 @@ else:
     
     elif command == "update":
     # * III. TASK_ID
-    #       i. EDGE CASE: For a TASK_ID to exist, you need atleast 3 elements
-    #           - int(sys.argv[2]) : sys.argv[2] is a string, but TASK_ID is integer
-    # NOTE : loading the file before checking description doesn't break anything. But validating inputs before doing file I/O is better.
+    #       i. EDGE CASE
+    # NOTE : loading the file before checking description doesn't break anything, but validating inputs before doing file I/O is better.
     # * IV. DESCRIPTION
     #       i. EDGE CASE: For a DESCRIPTION to exist, you need atleast 4 elements
-    #       ii. define file name & load exisiting tasks
-    #           - filename = "tasks.json" : give a name to the file
-    #           - os.path.exists(filename) : check file's existence
-    #           - with open(filename, "r") as f : "r" here is for reading the file
-    #           - json.load(f) : converts from JSON to python list    
+    #       ii. define file name & load EXISTING tasks
     #       iii. update description and time
-    #       iv. write back
+    #           - for task in tasks :                                           task is like i iterator in for loop
+    #       iv. write back in file
     #       v. print confirmation
-    #           - task is like i iterator 
 
         if len(sys.argv) < 3:
             print("Please provide an ID")
@@ -183,10 +187,10 @@ else:
     elif command == "mark-in-progress":
     # * III. TASK_ID
     #       i. EDGE CASE
-    #       ii. define file name & load existing tasks
+    #       ii. define file name & load EXISTING tasks
     #       iii. update status and time
-    #           - status : in-progress
-    #       iv. write back
+    #           - task["status"] = "in-progress" :                              The command is mark-in-progress but the stored status value is just "in-progress"
+    #       iv. write back in file
     #       v. print confirmation
 
         if len(sys.argv) < 3:
@@ -215,10 +219,10 @@ else:
     elif command == "mark-done":
     # * III. TASK_ID
     #       i. EDGE CASE
-    #       ii. define file name & load existing tasks
+    #       ii. define file name & load EXISTING tasks
     #       iii. update status and time
-    #           - status : done
-    #       iv. write back
+    #           - task["status"] = "done" :                                     The command is mark-done but the stored status value is just "done"
+    #       iv. write back in file
     #       v. print confirmation
 
         if len(sys.argv) < 3:
@@ -246,10 +250,10 @@ else:
     
     elif command == "list":
     # * III. FILTER ARGUMENT
-    #       i. define file name & load existing tasks
+    #       i. define file name & load EXISTING tasks
     #       ii. Check loaded tasks
     #       iii. filter tasks
-    #       iv. print
+    #       iv. print confirmation
 
         filename = "tasks.json"
         if os.path.exists(filename):
