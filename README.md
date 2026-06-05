@@ -2,6 +2,8 @@
 
 A command-line interface to track and manage tasks, built in Python. Tasks are stored persistently in a local JSON file — no database or external libraries required.
 
+This project has been made as per https://roadmap.sh/projects/task-tracker instructions.
+
 ---
 
 ## Prerequisites
